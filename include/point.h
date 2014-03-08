@@ -1,26 +1,65 @@
-#ifndef _POINT_H_
-#define _POINT_H_
+#include "header.h"
+#include <cmath>
 
-class Point{
+
+class Point
+{
+private:
+    double x, y, z;
 public:
-    double x;
-    double y;
-    double z;
+    Point()
+    {
+        x = 0.0;
+        y = 0.0;
+        z = 0.0;
+    }
 
-    Point();
-    Point operator -(Point P);
-    Point operator -();
-    Point operator +(Point P);
-    double operator *(Point P); //dot product
-    double operator ^(Point P);	//cross product
-    double operator *(double k);
-    void operator =(Point P);
+    void add(Point P)
+    {
+        x += P.x;
+        y += P.y;
+        z += P.z;
+    }
 
-    Point cross(Point P);
-    double dot(P);
-    double getLength();
+    Point operator -()
+    {
+        return Point(-x ,-y, -z);
+    }
 
-    double modulo();
+    void operator = (Point P)
+    {
+        x = P.x;
+        y = P.y;
+        z = p.z;
+    }
 
+    Point operator - (Point P)
+    {
+        return Point(x-P.x, y-P.y, z-P.z);
+    }
+
+    Point operator + (Point P)
+    {
+        return Point(x+P.x, y+P.y, z+P.z);
+    }
+
+    Point operator * (double k)
+    {
+        Point(x*k, y*k, z*k);
+    }
+
+    double operator * (Point P)
+    {
+        return (x*P.x + y*P.y + z*P.z);
+    }
+
+    Point operator ^ (Point P) //cross product
+    {
+        return Point((y*P.z - z*P.y), (- x*P.z + z*P.x), (x*P.y - y*P.x));
+    }
+
+    double mod()
+    {
+        return sqrt(x*x + y*y + z*z);
+    }
 };
-#endif

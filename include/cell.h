@@ -1,12 +1,17 @@
 #ifndef _CELL_H_
 #define _CELL_H_
 
+#include <vector>
+
 class Cell
 {
 private:
-    std::vector<Point> points;
 
 public:
+    std::vector<Point> points;
+    Point* singlePoint;
+    Cell* childOctant[8];
+    Cell* parent;
 };
 
 #endif

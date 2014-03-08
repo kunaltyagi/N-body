@@ -2,6 +2,7 @@
 #define _PARTICLE_H_
 
 #include <cmath>
+#include <vector>
 
 #define particleMass 1
 #define particleRadius 1
@@ -47,6 +48,14 @@ public:
      */
     bool move(double t)
     {
+        /*
+double Particle::move(double t){
+        Point p;
+        p.x = _velocity.x*t + _acceleration.x*t*t/2;
+        p.y = _velocity.y*t + _acceleration.y*t*t/2;
+        _position = (_position + p);
+    }
+        */
         if(fmod(t,_timeStep) == 0)
         {
             ;
@@ -54,7 +63,7 @@ public:
         else
         // out of timeStep, no need to sync yet
         {
-            return false
+            return false;
         }
         return true;
     }
