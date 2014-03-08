@@ -12,8 +12,8 @@ private:
     Point _centerOfMass;
 
     double _simTime;
-
     double _probeInterval;
+    double _threshold;    // MAC(Multi-pole Acceptance Criterion) value of $$ \theta = \frac{d}{r} $$ for a group.
 
     INT _NoOfParticles;
 
@@ -22,13 +22,10 @@ private:
 
     Cell* root;
 
-    // MAC(Multi-pole Acceptance Criterion) value of $$ \theta = \frac{d}{r} $$ for a group.
-    double _threshold;
-
 public:
     System()
     {
-        ;
+        _threshold = 1;
     }
     void setNumberOfParticles(INT num)      {   _NoOfParticles  = num;          }
     void setSimTime(double totalTime)       {   _simTime        = totalTime;    }
@@ -36,6 +33,7 @@ public:
     void setCollisions(bool val)            {   _collision      = val;          }
     void setAggregation(bool val)           {   _aggregate      = val;          }
     void setMAC(double theta)               {   _threshold      = theta;        }
+
     void enterParticles()
     {
         _centerOfMass.x = _centerOfMass.y = _centerOfMass.z = 0;
@@ -46,14 +44,17 @@ public:
         for(INT i = 0; i < _NoOfParticles; ++i)
         {
             cin>>origin.x>>origin.y>>origin.z;  tmp.updatePosition(origin);
-            _centerOfMass = (_centerOfMass*i + mass*origin)/(i+1);
+            _centerOfMass += mass*origin;
             cin>>mass>>radius>>e;   tmp.updateMass(mass); tmp.updateRadius(radius); tmp.updateE(e);
             cin>>origin.x>>origin.y>>origin.z;  tmp.updateVelocity(origin);
             cin>>origin.x>>origin.y>>origin.z;  tmp.updateAcceleration(origin);
             _particles.push_back(Particle(tmp));
         }
+        _centerOfMass /= _NoOfParticles;
     }
-    void BuildQuads()
+
+    //at each step of computation, bloody expensive process
+    void BuildQuadTree()
     {
         delete root;
         root = new Cell;
@@ -61,6 +62,16 @@ public:
         for(INT i = 0; i < _NoOfParticles; ++i)
         {
             root->insetToRoot(_particles[i]);
+        }
+    }
+
+    void calcForce()
+    {
+        double force;
+        for(INT i = 0; i < _NoOfParticles; ++i)
+        {
+            force = root->calcForce(_particles[i]);
+            _particles[i].applyForce(force);
         }
     }
 };

@@ -1,17 +1,27 @@
-#include "header.h"
-#include <cmath>
+#ifndef _POINT_H_
+#define _POINT_H_
 
+#include <cmath>
 
 class Point
 {
 private:
-    double x, y, z;
+
 public:
+    double x, y, z;
+
     Point()
     {
         x = 0.0;
         y = 0.0;
         z = 0.0;
+    }
+
+    Point(double a, double b, double c)
+    {
+        x = a;
+        y = b;
+        z = c;
     }
 
     void add(Point P)
@@ -45,7 +55,7 @@ public:
 
     Point operator * (double k)
     {
-        Point(x*k, y*k, z*k);
+        return Point(x*k, y*k, z*k);
     }
 
     double operator * (Point P)
@@ -63,3 +73,5 @@ public:
         return sqrt(x*x + y*y + z*z);
     }
 };
+#endif
+// _POINT_H_
