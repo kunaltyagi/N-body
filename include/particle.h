@@ -6,6 +6,8 @@
 
 #define particleMass 1
 #define particleRadius 1
+/*// order of largest computations*/
+#define maxN 4
 
 typedef Point Vector ;
 
@@ -30,13 +32,23 @@ private:
 
     // to further reduce calculations
     double _timeStep;
+    int _turnSpent;
 
-    // order of largest computations
-    int maxN;
+    // for collisions
+    double _e;
 
 public:
-    Particle();
-    Particle(double position, double mass = particleMass, double radius = particleRadius, double velocity = 0 , double acceleration = 0);
+    Particle()
+    {
+        _position.x     = _position.y       = _position.z = 0;
+        _mass           = particleMass;
+        _radius         = particleRadius;
+        _velocity.x     = _velocity.y       = _velocity.z = 0;
+        _acceleration.x = _acceleration.y   = _acceleration.z = 0;
+        _timeStep       = 1;
+        _turnSpent      = 0;
+        _e              = 0.1;
+    }
 
     // main function for simulation
     /**
@@ -69,17 +81,21 @@ double Particle::move(double t){
     }
 
     // setter functions
+    void updatePosition(Point point)                {   _position       = position;     }
     void updateVelocity(Vector velocity)            {   _velocity       = velocity;     }
     void updateAcceleration(Vector acceleration)    {   _acceleration   = acceleration; }
-    void updatePosition(Point point)                {   _position       = position;     }
     void updateTimeStep(double timeStep)            {   _timeStep       = timeStep;     }
+    void updateE(double e)                          {   _e              = e;            }
+    void updateMass(double mass)                    {   _mass           = mass;         }
+    void updateRadius(double radius)                {   _radius         = radius;       }
 
     // getter func
     Point getPosition()         {   return _position;       }
-    double getAcceleration()    {   return _acceleration;   }
-    double getVelocity()        {   return _velocity;       }
+    Vector getAcceleration()    {   return _acceleration;   }
+    Vector getVelocity()        {   return _velocity;       }
     double getRadius()          {   return _radius;         }
     double getMass()            {   return _mass;           }
+    double getE()               {   return _e;              }
 
 };
 #endif
