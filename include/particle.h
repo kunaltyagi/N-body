@@ -4,6 +4,8 @@
 #include <cmath>
 #include <vector>
 
+#include "point.h"
+
 #define particleMass 1
 #define particleRadius 1
 /*// order of largest computations*/
@@ -60,14 +62,11 @@ public:
      */
     bool move(double t)
     {
-        /*
-double Particle::move(double t){
         Point p;
         p.x = _velocity.x*t + _acceleration.x*t*t/2;
         p.y = _velocity.y*t + _acceleration.y*t*t/2;
         _position = (_position + p);
-    }
-        */
+        /*
         if(fmod(t,_timeStep) == 0)
         {
             ;
@@ -76,7 +75,7 @@ double Particle::move(double t){
         // out of timeStep, no need to sync yet
         {
             return false;
-        }
+        }*/
         return true;
     }
 
@@ -96,6 +95,11 @@ double Particle::move(double t){
     double getRadius()          {   return _radius;         }
     double getMass()            {   return _mass;           }
     double getE()               {   return _e;              }
+
+    void applyForce(Vector force)
+    {
+        _acceleration = force/_mass;
+    }
 
 };
 #endif

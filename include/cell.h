@@ -1,7 +1,11 @@
 #ifndef _CELL_H_
 #define _CELL_H_
 
+#include <cmath>
 #include <vector>
+
+#include "particle.h"
+#include "point.h"
 
 class Cell
 {
@@ -16,7 +20,35 @@ public:
             childOctant[i] = NULL;
         }
         centerOfMass    = origin    = Point(0,0,0);
+        mass  = 0;
+        size  = 1;
+        theta = 1;
+    }
+
+    Cell(double len, int x = 0, int y = 0, int z = 0, mac = 1)
+    {
+        singleParticle  = parent    = NULL;
+        for (int i = 0; i < 8; ++i)
+        {
+            childOctant[i] = NULL;
+        }
+        centerOfMass    = origin    = Point(x,y,z);
+        mass  = 0;
+        size  = len;
+        theta = mac;
+    }
+
+    Cell(double len, Point p, mac = 1)
+    {
+        singleParticle  = parent    = NULL;
+        centerOfMass    = origin    = p;
+        for (int i = 0; i < 8; ++i)
+        {
+            childOctant[i] = NULL;
+        }
         mass = 0;
+        size = len;
+        theta = mac;
     }
 
     std::vector<Particle> particles;
@@ -26,89 +58,55 @@ public:
     Point origin;
     Point centerOfMass;
     double mass;
+    double size;
+    double theta;
 
-    int getOctant(Point p)
+    Point getOrigin(int octant)
     {
-        if(origin == p)
+        Point temp(origin);
+        if(octant==0 || origin==3 || origin==4 || origin==7)
         {
-            return 0;
+            temp.x += size/2;
         }
         else
         {
-            if(p.x >= origin.x)
-            {
-                if(p.y >= origin.y)
-                {
-                    if(p.z >= origin.z)
-                    {
-                        return 1;
-                    }
-                    else
-                    {
-                        return 5;
-                    }
-                }
-                else
-                {
-                    if(p.z >= origin.z)
-                    {
-                        return 4;
-                    }
-                    else
-                    {
-                        return 8;
-                    }
-                }
-            }
-            else
-            {
-                if(p.y >= origin.y)
-                {
-                    if(p.z >= origin.z)
-                    {
-                        return 2;
-                    }
-                    else
-                    {
-                        return 6;
-                    }
-                }
-                else
-                {
-                    if(p.z >= origin.z)
-                    {
-                        return 3;
-                    }
-                    else
-                    {
-                        return 7;
-                    }
-                }
-            }
+            temp.x -= size/2;
         }
-        if(octant == 0)
+
+        if(octant==0 || origin==1 || origin==4 || origin==5)
         {
-            return 0;
+            temp.y += size/2;
         }
         else
         {
-            return octant-1;
+            temp.y -= size/2;
         }
+
+        if(octant==0 || origin==1 || origin==2 || origin==3)
+        {
+            temp.z += size/2;
+        }
+        else
+        {
+            temp.z -= size/2;
+        }
+        return temp;
     }
 
     void insetToRoot(Particle newParticle)
     {
         int octant;
+        Point newPoint = newParticle.getPosition();
         if(particles.size() > 1)
         {
-            octant = getOctant(newParticle.getPosition());
+            octant = newParticle.getPosition().getOctant(origin);
             if(octant < 0)
             {
                 octant = 0;
             }
             if(childOctant[octant] == NULL)
             {
-                childOctant[octant] = new Cell;
+                childOctant[octant] = new Cell(size/2, this->getOrigin(octant));
             }
             childOctant[octant]->insetToRoot(newParticle);
         }
@@ -116,25 +114,24 @@ public:
         {
             if(singleParticle->getPosition() != newParticle.getPosition())
             {
-                octant = getOctant(singleParticle->getPosition());
+                octant = singleParticle->getPosition().getOctant(origin);
                 if(octant < 0)
                 {
                     octant = 0;
                 }
                 if(childOctant[octant] == NULL)
                 {
-                    childOctant[octant] = new Cell;
+                    childOctant[octant] = new Cell(size/2, this->getOrigin(octant));
                 }
                 childOctant[octant]->insetToRoot(singleParticle());
-
-                octant = getOctant(newParticle.getPosition());
+                octant = newParticle.getPosition().getOctant(origin);
                 if(octant < 0)
                 {
                     octant = 0;
                 }
                 if(childOctant[octant] == NULL)
                 {
-                    childOctant[octant] = new Cell;
+                    childOctant[octant] = new Cell(size/2, this->getOrigin(octant));
                 }
                 childOctant[octant]->insetToRoot(newParticle());
             }
@@ -177,26 +174,35 @@ public:
         }
     }
 
-    void calcForce()
+    Vector calcForce(Particle target)
     {
-        ;
+        Vector force = 0;
+        if(particles.size() == 1)
+        {
+            force = G*target.getMass()*particles[0].getMass() * pow((target.getPosition()-particles[0].getPosition()).mod(), -2);
+        }
+        else
+        {
+            double r = (target.getPosition()-particles[0].getPosition()).mod();
+            double d = size;
+            if (d/r < _theta)
+            {
+              force = G*target.getMass()*mass * pow((target.getPosition()-centerOfMass).mod(), -2);
+            }
+            else
+            {
+                for(int i = 0; i < 8; ++i)
+                {
+                    if(childOctant[i] == NULL)
+                    {
+                        continue;
+                    }
+                    force += n.calcForce(target)
+                }
+            }
+        }
+        return force;
     }
-Function force = TreeNode::CalculateForce(targetParticle)
-  force = 0
-  if number of particle equals 1
-    force = Gravitational force between targetParticle and particle
-  else
-    r = distance from nodes center of mass to targetParticle
-    d = height of the node
-    if (d/r < θ)
-      force = Gravitational force between targetParticle and node using the nodes center of mass and the total mass of the node
-    else
-      for all child nodes n
-        force += n.CalculateForce(particle)
-      end for
-    end if
-  end
-end
 };
 
 #endif

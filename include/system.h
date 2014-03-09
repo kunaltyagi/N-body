@@ -1,7 +1,14 @@
 #ifndef _SYSTEM_H_
 #define _SYSTEM_H_
 
+#include <cmath>
 #include <vector>
+
+#include "cell.h"
+#include "particle.h"
+#include "point.h"
+
+#define G (6.673/pow(10,-11))
 
 typedef INT (long long int) ;
 
@@ -21,6 +28,7 @@ private:
     bool _collision;
 
     Cell* root;
+    double _size;
 
 public:
     System()
@@ -33,6 +41,7 @@ public:
     void setCollisions(bool val)            {   _collision      = val;          }
     void setAggregation(bool val)           {   _aggregate      = val;          }
     void setMAC(double theta)               {   _threshold      = theta;        }
+    void setSize(double size)               {   _size           = size;         }
 
     void enterParticles()
     {
@@ -57,8 +66,7 @@ public:
     void BuildQuadTree()
     {
         delete root;
-        root = new Cell;
-        root->origin = Point(0,0,0);
+        root = new Cell(_size, Point(0,0,0), _threshold);
         for(INT i = 0; i < _NoOfParticles; ++i)
         {
             root->insetToRoot(_particles[i]);
@@ -67,11 +75,19 @@ public:
 
     void calcForce()
     {
-        double force;
+        Vector force;
         for(INT i = 0; i < _NoOfParticles; ++i)
         {
             force = root->calcForce(_particles[i]);
             _particles[i].applyForce(force);
+        }
+    }
+
+    void move()
+    {
+        for(INT i = 0; i < _NoOfParticles; ++i)
+        {
+            _particles[i].move(_probeInterval);
         }
     }
 };

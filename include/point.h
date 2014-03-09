@@ -43,6 +43,26 @@ public:
         z = p.z;
     }
 
+    bool operator == (Point P)
+    {
+        if(x != P.x)
+        {
+            return x==P.x;
+        }
+        if(y != P.x)
+        {
+            return y==P.y;
+        }
+        if(z != P.x)
+        {
+            return z==P.z;
+        }
+        return true;
+        //return x==P.x && y==P.y && z==P.z;
+    }
+
+    bool operator
+
     Point operator - (Point P)
     {
         return Point(x-P.x, y-P.y, z-P.z);
@@ -71,6 +91,75 @@ public:
     double mod()
     {
         return sqrt(x*x + y*y + z*z);
+    }
+
+    int getOctant(Point origin)
+    {
+        if(origin == Point(x, y, z))
+        {
+            return 0;
+        }
+        else
+        {
+            if(x >= origin.x)
+            {
+                if(y >= origin.y)
+                {
+                    if(z >= origin.z)
+                    {
+                        return 1;
+                    }
+                    else
+                    {
+                        return 5;
+                    }
+                }
+                else
+                {
+                    if(z >= origin.z)
+                    {
+                        return 4;
+                    }
+                    else
+                    {
+                        return 8;
+                    }
+                }
+            }
+            else
+            {
+                if(y >= origin.y)
+                {
+                    if(z >= origin.z)
+                    {
+                        return 2;
+                    }
+                    else
+                    {
+                        return 6;
+                    }
+                }
+                else
+                {
+                    if(z >= origin.z)
+                    {
+                        return 3;
+                    }
+                    else
+                    {
+                        return 7;
+                    }
+                }
+            }
+        }
+        if(octant == 0)
+        {
+            return 0;
+        }
+        else
+        {
+            return octant-1;
+        }
     }
 };
 #endif
