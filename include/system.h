@@ -2,20 +2,20 @@
 #define _SYSTEM_H_
 
 #include <cmath>
+#include <iostream>
 #include <vector>
 
 #include "cell.h"
 #include "particle.h"
 #include "point.h"
 
-#define G (6.673/pow(10,-11))
-
-typedef INT (long long int) ;
+typedef long long int INT;
+typedef Point Vector ;
 
 class System
 {
 private:
-    vector<Particle> _particles;
+    std::vector<Particle> _particles;
     Point _centerOfMass;
 
     double _simTime;
@@ -52,14 +52,14 @@ public:
         double mass, radius;
         for(INT i = 0; i < _NoOfParticles; ++i)
         {
-            cin>>origin.x>>origin.y>>origin.z;  tmp.updatePosition(origin);
-            _centerOfMass += mass*origin;
-            cin>>mass>>radius>>e;   tmp.updateMass(mass); tmp.updateRadius(radius); tmp.updateE(e);
-            cin>>origin.x>>origin.y>>origin.z;  tmp.updateVelocity(origin);
-            cin>>origin.x>>origin.y>>origin.z;  tmp.updateAcceleration(origin);
+            std::cin>>origin.x>>origin.y>>origin.z;  tmp.updatePosition(origin);
+            _centerOfMass = _centerOfMass + origin * mass;
+            std::cin>>mass>>radius>>e;   tmp.updateMass(mass); tmp.updateRadius(radius); tmp.updateE(e);
+            std::cin>>origin.x>>origin.y>>origin.z;  tmp.updateVelocity(origin);
+            std::cin>>origin.x>>origin.y>>origin.z;  tmp.updateAcceleration(origin);
             _particles.push_back(Particle(tmp));
         }
-        _centerOfMass /= _NoOfParticles;
+        _centerOfMass = _centerOfMass / _NoOfParticles;
     }
 
     //at each step of computation, bloody expensive process

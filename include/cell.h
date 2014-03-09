@@ -3,54 +3,20 @@
 
 #include <cmath>
 #include <vector>
+#include <cstdlib>
 
 #include "particle.h"
 #include "point.h"
+
+#define G (6.673/pow(10,-11))
+
+typedef Point Vector ;
 
 class Cell
 {
 private:
 
 public:
-    Cell()
-    {
-        singleParticle  = parent    = NULL;
-        for (int i = 0; i < 8; ++i)
-        {
-            childOctant[i] = NULL;
-        }
-        centerOfMass    = origin    = Point(0,0,0);
-        mass  = 0;
-        size  = 1;
-        theta = 1;
-    }
-
-    Cell(double len, int x = 0, int y = 0, int z = 0, mac = 1)
-    {
-        singleParticle  = parent    = NULL;
-        for (int i = 0; i < 8; ++i)
-        {
-            childOctant[i] = NULL;
-        }
-        centerOfMass    = origin    = Point(x,y,z);
-        mass  = 0;
-        size  = len;
-        theta = mac;
-    }
-
-    Cell(double len, Point p, mac = 1)
-    {
-        singleParticle  = parent    = NULL;
-        centerOfMass    = origin    = p;
-        for (int i = 0; i < 8; ++i)
-        {
-            childOctant[i] = NULL;
-        }
-        mass = 0;
-        size = len;
-        theta = mac;
-    }
-
     std::vector<Particle> particles;
     Particle* singleParticle;
     Cell* childOctant[8];
@@ -61,10 +27,55 @@ public:
     double size;
     double theta;
 
+    Cell()
+    {
+        singleParticle  = NULL;
+        parent          = NULL;
+        centerOfMass    = Point(0, 0, 0);
+        origin          = Point(0, 0, 0);
+        for (int i = 0; i < 8; ++i)
+        {
+            childOctant[i] = NULL;
+        }
+        mass  = 0;
+        size  = 1;
+        theta = 1;
+    }
+
+    Cell(double len, int x = 0, int y = 0, int z = 0, int mac = 1)
+    {
+        singleParticle  = NULL;
+        parent          = NULL;
+        centerOfMass    = Point(x, y, z);
+        origin          = Point(x, y, z);
+        for (int i = 0; i < 8; ++i)
+        {
+            childOctant[i] = NULL;
+        }
+        mass  = 0;
+        size  = len;
+        theta = mac;
+    }
+
+    Cell(double len, Point p, int mac = 1)
+    {
+        singleParticle  = NULL;
+        parent          = NULL;
+        centerOfMass    = p;
+        origin          = p;
+        for (int i = 0; i < 8; ++i)
+        {
+            childOctant[i] = NULL;
+        }
+        mass = 0;
+        size = len;
+        theta = mac;
+    }
+
     Point getOrigin(int octant)
     {
         Point temp(origin);
-        if(octant==0 || origin==3 || origin==4 || origin==7)
+        if(octant == 0 || octant ==3 || octant ==4 || octant ==7)
         {
             temp.x += size/2;
         }
@@ -73,7 +84,7 @@ public:
             temp.x -= size/2;
         }
 
-        if(octant==0 || origin==1 || origin==4 || origin==5)
+        if(octant ==0 || octant ==1 || octant ==4 || octant ==5)
         {
             temp.y += size/2;
         }
@@ -82,7 +93,7 @@ public:
             temp.y -= size/2;
         }
 
-        if(octant==0 || origin==1 || origin==2 || origin==3)
+        if(octant ==0 || octant ==1 || octant ==2 || octant ==3)
         {
             temp.z += size/2;
         }
@@ -112,7 +123,7 @@ public:
         }
         else if(particles.size() == 1)
         {
-            if(singleParticle->getPosition() != newParticle.getPosition())
+            if(!(singleParticle->getPosition() == newParticle.getPosition()))
             {
                 octant = singleParticle->getPosition().getOctant(origin);
                 if(octant < 0)
@@ -123,7 +134,7 @@ public:
                 {
                     childOctant[octant] = new Cell(size/2, this->getOrigin(octant));
                 }
-                childOctant[octant]->insetToRoot(singleParticle());
+                childOctant[octant]->insetToRoot(particles[0]);
                 octant = newParticle.getPosition().getOctant(origin);
                 if(octant < 0)
                 {
@@ -133,7 +144,7 @@ public:
                 {
                     childOctant[octant] = new Cell(size/2, this->getOrigin(octant));
                 }
-                childOctant[octant]->insetToRoot(newParticle());
+                childOctant[octant]->insetToRoot(newParticle);
             }
             else
             {
@@ -167,27 +178,27 @@ public:
                     continue;
                 }
                 childOctant[i]->calcMassDistribution();
-                mass += childOctant->mass;
-                centerOfMass +=  childOctant[i]->mass * childOctant[i]->centerOfMass;
+                mass += childOctant[i]->mass;
+                centerOfMass = centerOfMass + ( childOctant[i]->centerOfMass * childOctant[i]->mass);
             }
-            centerOfMass /= mass;
+            centerOfMass = centerOfMass / mass;
         }
     }
 
     Vector calcForce(Particle target)
     {
-        Vector force = 0;
+        Vector force = Vector(0, 0, 0);
         if(particles.size() == 1)
         {
-            force = G*target.getMass()*particles[0].getMass() * pow((target.getPosition()-particles[0].getPosition()).mod(), -2);
+            force = (target.getPosition()-particles[0].getPosition()) *G* ( (target.getMass() * particles[0].getMass()) * pow((target.getPosition()-particles[0].getPosition()).mod(), -3));
         }
         else
         {
             double r = (target.getPosition()-particles[0].getPosition()).mod();
             double d = size;
-            if (d/r < _theta)
+            if (d/r < theta)
             {
-              force = G*target.getMass()*mass * pow((target.getPosition()-centerOfMass).mod(), -2);
+              force = (target.getPosition()-centerOfMass) *G* ( (target.getMass() * mass) * pow((target.getPosition()-centerOfMass).mod(), -3));
             }
             else
             {
@@ -197,7 +208,7 @@ public:
                     {
                         continue;
                     }
-                    force += n.calcForce(target)
+                    force = force + childOctant[i]->calcForce(target);
                 }
             }
         }

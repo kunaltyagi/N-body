@@ -40,7 +40,7 @@ public:
     {
         x = P.x;
         y = P.y;
-        z = p.z;
+        z = P.z;
     }
 
     bool operator == (Point P)
@@ -60,8 +60,6 @@ public:
         return true;
         //return x==P.x && y==P.y && z==P.z;
     }
-
-    bool operator
 
     Point operator - (Point P)
     {
@@ -83,6 +81,11 @@ public:
         return (x*P.x + y*P.y + z*P.z);
     }
 
+    Point operator / (double k)
+    {
+        return Point(x/k, y/k, z/k);
+    }
+
     Point operator ^ (Point P) //cross product
     {
         return Point((y*P.z - z*P.y), (- x*P.z + z*P.x), (x*P.y - y*P.x));
@@ -95,9 +98,10 @@ public:
 
     int getOctant(Point origin)
     {
+        int octant;
         if(origin == Point(x, y, z))
         {
-            return 0;
+            octant = 0;
         }
         else
         {
@@ -107,22 +111,22 @@ public:
                 {
                     if(z >= origin.z)
                     {
-                        return 1;
+                        octant = 1;
                     }
                     else
                     {
-                        return 5;
+                        octant = 5;
                     }
                 }
                 else
                 {
                     if(z >= origin.z)
                     {
-                        return 4;
+                        octant = 4;
                     }
                     else
                     {
-                        return 8;
+                        octant = 8;
                     }
                 }
             }
@@ -132,22 +136,22 @@ public:
                 {
                     if(z >= origin.z)
                     {
-                        return 2;
+                        octant = 2;
                     }
                     else
                     {
-                        return 6;
+                        octant = 6;
                     }
                 }
                 else
                 {
                     if(z >= origin.z)
                     {
-                        return 3;
+                        octant = 3;
                     }
                     else
                     {
-                        return 7;
+                        octant = 7;
                     }
                 }
             }

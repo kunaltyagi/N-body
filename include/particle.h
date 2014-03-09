@@ -30,7 +30,7 @@ private:
     std::vector<Vector> _vectAcceleration;
 
     // supplementary information
-    Cell* _parentCell;      //can it be calculated?
+    //Cell* _parentCell;      //can it be calculated?
 
     // to further reduce calculations
     double _timeStep;
@@ -80,7 +80,7 @@ public:
     }
 
     // setter functions
-    void updatePosition(Point point)                {   _position       = position;     }
+    void updatePosition(Point position)                {   _position       = position;     }
     void updateVelocity(Vector velocity)            {   _velocity       = velocity;     }
     void updateAcceleration(Vector acceleration)    {   _acceleration   = acceleration; }
     void updateTimeStep(double timeStep)            {   _timeStep       = timeStep;     }
