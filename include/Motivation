@@ -1,0 +1,24 @@
+Motivation:
+
+Interested in simulation, cognition
+Background of aerospace
+Interested in astronomy
+Strong in C++
+Interested in utilizing my skills in programming in my academic field of interest
+
+Program: 12 weeks time
+
+Week 0: add support for collision, aggregation
+Week 1: work on data dump methods, input format for particle distribution
+Week 2: add support for different types of particles and forces like emag, high speed collisions. etc.
+Week 3: optimize Bayer-Hut method for torus, most common shapes of planetary dust clouds
+Week 4: add Particle-Particle Particle-Mesh Method
+Week 5: add ui, improvements in PPPM method
+Week 6: add other methods to calculate position, of different orders (Runga-Kutte),(Adams-Bashforth), others
+Week 7: run simulations on different methods, with different thresholds, different particle distributions
+
+All the time: update documentation to reflect changes in codes, blog entries to notify the community
+              keep contact with the mentor through irc/phone/email at least once a week, more if possible
+              proper communication of problems, feedback related to progress, speed, quality of code, documentation, etc.
+
+Later: Complete any incomplete documentation, finish blog entries
