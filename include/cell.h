@@ -10,14 +10,15 @@
 
 #define G (6.673/pow(10,-11))
 
-typedef Point Vector ;
+typedef Point Vector;
 
 class Cell
 {
 private:
 
 public:
-    std::vector<Particle> particles;
+    //std::vector<Particle> particles;
+    int numberParticles;
     Particle* singleParticle;
     Cell* childOctant[8];
     Cell* parent;
@@ -40,6 +41,7 @@ public:
         mass  = 0;
         size  = 1;
         theta = 1;
+        numberParticles = 0;
     }
 
     Cell(double len, int x = 0, int y = 0, int z = 0, int mac = 1)
@@ -55,6 +57,7 @@ public:
         mass  = 0;
         size  = len;
         theta = mac;
+        numberParticles = 0;
     }
 
     Cell(double len, Point p, int mac = 1)
@@ -70,6 +73,7 @@ public:
         mass = 0;
         size = len;
         theta = mac;
+        numberParticles = 0;
     }
 
     Point getOrigin(int octant)
@@ -104,11 +108,11 @@ public:
         return temp;
     }
 
-    void insetToRoot(Particle newParticle)
+    void insetToRoot(Particle& newParticle)
     {
         int octant;
         Point newPoint = newParticle.getPosition();
-        if(particles.size() > 1)
+        if(numberParticles > 1)
         {
             octant = newParticle.getPosition().getOctant(origin);
             if(octant < 0)
@@ -121,9 +125,9 @@ public:
             }
             childOctant[octant]->insetToRoot(newParticle);
         }
-        else if(particles.size() == 1)
+        else if(numberParticles == 1)
         {
-            if(!(singleParticle->getPosition() == newParticle.getPosition()))
+            if((singleParticle->getPosition() - newParticle.getPosition()).mod() > (singleParticle->getRadius() + newParticle.getRadius()))
             {
                 octant = singleParticle->getPosition().getOctant(origin);
                 if(octant < 0)
@@ -134,7 +138,7 @@ public:
                 {
                     childOctant[octant] = new Cell(size/2, this->getOrigin(octant));
                 }
-                childOctant[octant]->insetToRoot(particles[0]);
+                childOctant[octant]->insetToRoot(*singleParticle);
                 octant = newParticle.getPosition().getOctant(origin);
                 if(octant < 0)
                 {
@@ -148,23 +152,27 @@ public:
             }
             else
             {
-                ;
-                //particle already present, update it??
+                //e = 0
                 //implement collision?
-                //aggregate it?
+                double newMass = singleParticle->getMass() + newParticle.getMass();
+                singleParticle->updateVelocity((singleParticle->getVelocity()*singleParticle->getMass())+(newParticle.getVelocity()*newParticle.getMass())/newMass);
+                singleParticle->updateAcceleration((singleParticle->getAcceleration()*singleParticle->getMass())+(newParticle.getAcceleration()*newParticle.getMass())/newMass);
                 //something like it?
+                //mass aggregator
+                singleParticle->updateMass(newMass);
+                newParticle.updateMass(0);
             }
         }
-        else if(particles.size() == 0)
+        else if(numberParticles == 0)
         {
-            singleParticle = new Particle(newParticle);
+            singleParticle = &newParticle;
         }
-        particles.push_back(newParticle);
+        ++numberParticles;
     }
 
     void calcMassDistribution()
     {
-        if(particles.size() == 1)
+        if(numberParticles == 1)
         {
             centerOfMass = singleParticle->getPosition();
             mass = singleParticle->getMass();
@@ -188,13 +196,13 @@ public:
     Vector calcForce(Particle target)
     {
         Vector force = Vector(0, 0, 0);
-        if(particles.size() == 1)
+        if(numberParticles == 1)
         {
-            force = (target.getPosition()-particles[0].getPosition()) *G* ( (target.getMass() * particles[0].getMass()) * pow((target.getPosition()-particles[0].getPosition()).mod(), -3));
+            force = (target.getPosition()-(*singleParticle).getPosition()) *G* ( (target.getMass() * (*singleParticle).getMass()) * pow((target.getPosition()-(*singleParticle).getPosition()).mod(), -3));
         }
         else
         {
-            double r = (target.getPosition()-particles[0].getPosition()).mod();
+            double r = (target.getPosition()-(*singleParticle).getPosition()).mod();
             double d = size;
             if (d/r < theta)
             {

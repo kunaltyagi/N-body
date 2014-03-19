@@ -3,6 +3,7 @@ LDFLAGS =
 
 all: point.h particle.h cell.h system.h
 	g++ -c point.h particle.h cell.h system.h
+	rm *.gch
 	#simulator clean
 
 simulator: system.o

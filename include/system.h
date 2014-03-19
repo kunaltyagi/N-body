@@ -85,9 +85,17 @@ public:
 
     void move()
     {
+        Point temp;
+        double size = _size/2;
         for(INT i = 0; i < _NoOfParticles; ++i)
         {
             _particles[i].move(_probeInterval);
+            temp = _particles[i].getPosition();
+            if((temp.x > size || temp.x < -size)&&(temp.y > size || temp.y < -size)&&(temp.z > size || temp.z < -size) || _particles[i].getMass() == 0)
+                //out of bounds
+            {
+                _particles.erase(_particles.begin()+i);
+            }
         }
     }
 };

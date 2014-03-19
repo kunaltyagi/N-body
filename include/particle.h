@@ -11,7 +11,7 @@
 /*// order of largest computations*/
 #define maxN 4
 
-typedef Point Vector ;
+typedef Point Vector;
 
 class Particle
 {
@@ -65,7 +65,13 @@ public:
         Point p;
         p.x = _velocity.x*t + _acceleration.x*t*t/2;
         p.y = _velocity.y*t + _acceleration.y*t*t/2;
+        p.z = _velocity.z*t + _acceleration.z*t*t/2;
         _position = (_position + p);
+
+        p.x = _acceleration.x*t;
+        p.x = _acceleration.y*t;
+        p.x = _acceleration.z*t;
+        _velocity = (_velocity + p);
         /*
         if(fmod(t,_timeStep) == 0)
         {
@@ -80,7 +86,7 @@ public:
     }
 
     // setter functions
-    void updatePosition(Point position)                {   _position       = position;     }
+    void updatePosition(Point position)             {   _position       = position;     }
     void updateVelocity(Vector velocity)            {   _velocity       = velocity;     }
     void updateAcceleration(Vector acceleration)    {   _acceleration   = acceleration; }
     void updateTimeStep(double timeStep)            {   _timeStep       = timeStep;     }
